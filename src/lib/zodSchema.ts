@@ -7,4 +7,9 @@ export const newUserSchema = z.object({
     lastName: z.string().min(1, {message: defaultRequireMessage}),
     email: z.string().min(1, {message: defaultRequireMessage}).email({message: "Invalid email address"}),
     password: z.string({required_error: defaultRequireMessage,}).min(6, {message: "Your password must be at least 6 characters"}),
-}).required()
+})
+
+export const loginSchema = z.object({
+    email: z.string().min(1, {message: defaultRequireMessage}).email({message: "Invalid email address"}),
+    password: z.string({required_error: defaultRequireMessage,}).min(1, {message: defaultRequireMessage}),
+})
