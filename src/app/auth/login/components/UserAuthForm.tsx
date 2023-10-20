@@ -58,6 +58,12 @@ export function UserAuthForm({className, ...props}: UserAuthFormProps) {
                     description: "Friday, February 10, 2023 at 5:57 PM",
                     variant: "destructive"
                 })
+            } else {
+                toast({
+                    title: "Something went wrong",
+                    description: "Friday, February 10, 2023 at 5:57 PM",
+                    variant: "destructive"
+                })
             }
         } finally{
             setLoading(false)

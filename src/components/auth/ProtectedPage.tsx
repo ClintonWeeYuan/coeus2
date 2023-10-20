@@ -27,6 +27,7 @@ function ProtectedPage() {
         const runValidation = async () => {
             try {
                 const res = await validateToken(token)
+                console.log(res)
 
                 if (!res) throw new Error("Token validation failed");
             } catch (error) {
@@ -38,7 +39,7 @@ function ProtectedPage() {
         runValidation();
     }, [router]);
 
-    return <div>Protected Content</div>;
+    return <></>;
 }
 
 export default ProtectedPage

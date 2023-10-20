@@ -2,7 +2,7 @@
 import {prisma} from "@/db";
 import {loginSchema, newUserSchema} from "@/lib/zodSchema";
 import {z} from "zod";
-import jwt from "jsonwebtoken";
+import jwt, {JwtPayload} from "jsonwebtoken";
 import {LoginError} from "@/lib/customErrors/loginError";
 
 type NewUser = z.infer<typeof newUserSchema>
@@ -42,7 +42,7 @@ export async function login(data: LoginDetails): Promise<{success: boolean, toke
         throw new LoginError({name: "INCORRECT_PASSWORD", message: "Incorrect email and/or password"})
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "123456789", {
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || "123456789", {
         expiresIn: "10m",
     });
 
@@ -53,13 +53,13 @@ export async function login(data: LoginDetails): Promise<{success: boolean, toke
 }
 
 export const validateToken = async (token: string) => {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "123456789");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "123456789") as JwtPayload;
     if (!decoded) {
         return { message: "Expired",  status: 400}
-    } else if (decoded.exp < Math.floor(Date.now() / 1000)) {
+    } else if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) {
         return {messsage: "Expired", status: 400};
     } else {
         // If the token is valid, return some protected data.
-        return { data: "Protected data", status: 200 };
+        return { data: decoded, status: 200 };
     }
 }
