@@ -1,74 +1,41 @@
 "use client"
-
 import * as React from "react"
-import {cn} from "@/lib/utils"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import {Label} from "@/components/ui/label"
-import {FcGoogle} from "react-icons/fc";
-import {createUser, login} from "@/actions/user";
-import {useState} from "react";
-import {SubmitHandler, useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {z} from "zod";
-import {loginSchema} from "@/lib/zodSchema";
-import {useRouter} from "next/navigation";
-import { useToast } from "@/components/ui/use-toast"
-import {LoginError} from "@/lib/customErrors/loginError";
-
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { FcGoogle } from "react-icons/fc";
+import { login } from "@/actions/user";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { loginSchema } from "@/lib/zodSchema";
+import { useRouter } from "next/navigation";
+import { handleServerResponse } from "@/utils/errorHandling";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
 }
+
 type Input = z.infer<typeof loginSchema>
 
-export function UserAuthForm({className, ...props}: UserAuthFormProps) {
+export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     const router = useRouter()
-    const {toast} = useToast()
-    
-    const [loading, setLoading] = React.useState<boolean>(false)
+
     const {
         register,
         handleSubmit,
-        formState: {errors},
+        formState: { errors, isSubmitting },
     } = useForm<Input>({
         resolver: zodResolver(loginSchema)
     })
-
     const onSubmit: SubmitHandler<Input> = async (data) => {
-        setLoading(true)
-
-        try {
             const result = await login(data);
-            const {token, success} = result;
-            if(!success){
-                console.log("Something went wrong");
-                toast({
-                    title: "Something went wrong",
-                    description: "Friday, February 10, 2023 at 5:57 PM",
-                    variant: "destructive"
-                })
-                } else {
-                document.cookie = `token=${token}; path=/`;
-                await router.push("/")
-            }
-        } catch(e){
-            if(e instanceof LoginError){
-                toast({
-                    title: e.message,
-                    description: "Friday, February 10, 2023 at 5:57 PM",
-                    variant: "destructive"
-                })
-            } else {
-                toast({
-                    title: "Something went wrong",
-                    description: "Friday, February 10, 2023 at 5:57 PM",
-                    variant: "destructive"
-                })
-            }
-        } finally{
-            setLoading(false)
-        }
+            const { success } = result;
 
+            handleServerResponse(result);
+            if (success) {
+                router.push("/dashboard")
+            }
     }
 
     return (
@@ -86,7 +53,7 @@ export function UserAuthForm({className, ...props}: UserAuthFormProps) {
                             autoCapitalize="none"
                             autoComplete="email"
                             autoCorrect="off"
-                            disabled={loading}
+                            disabled={isSubmitting}
                         />
                     </div>
                     <div className="grid gap-1">
@@ -96,11 +63,11 @@ export function UserAuthForm({className, ...props}: UserAuthFormProps) {
                         <Input
                             {...register("password")}
                             type="password"
-                            disabled={loading}
+                            disabled={isSubmitting}
                         />
                     </div>
-                    <Button disabled={loading}>
-                        {loading ? (
+                    <Button disabled={isSubmitting}>
+                        {isSubmitting ? (
                             "Loading..."
                         ) : "Sign In with Email"}
 
@@ -117,8 +84,8 @@ export function UserAuthForm({className, ...props}: UserAuthFormProps) {
           </span>
                 </div>
             </div>
-            <Button variant="outline" type="button" disabled={loading}>
-                {loading ? (
+            <Button variant="outline" type="button" disabled={isSubmitting}>
+                {isSubmitting ? (
                     "Loading..."
                 ) : (
                     <>

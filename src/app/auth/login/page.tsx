@@ -1,11 +1,22 @@
-import React from 'react';
-import {Button} from "@/components/ui/button"
-import Image from "next/image"
+"use client"
+
+import React, { useEffect } from 'react';
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import UserAuthForm from "@/app/auth/login/components/UserAuthForm";
+import useUser from "@/components/hooks/useUser";
+import { useRouter } from "next/navigation";
 
 function Page() {
+    const { user } = useUser();
+    const router = useRouter()
+
+    useEffect(() => {
+        if(user.isLoggedIn){
+            router.push("/")
+        }
+    }, [user])
+
     return (
         <>
             <div className="container relative hidden h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">

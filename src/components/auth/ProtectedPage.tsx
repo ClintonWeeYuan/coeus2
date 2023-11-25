@@ -1,12 +1,12 @@
 "use client"
-import {useRouter, usePathname} from "next/navigation";
-import {useEffect} from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
 import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
-import {validateToken} from "@/actions/user";
+import { validateToken } from "@/actions/user";
 
 function ProtectedPage() {
-    const protectedPages = ["/"]
+    const protectedPages = ["/dashboard", "/homework", "/knowledgebase", "/schedule"]
 
     const router = useRouter();
     const currentURL = usePathname()

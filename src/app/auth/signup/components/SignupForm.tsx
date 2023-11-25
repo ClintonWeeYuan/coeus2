@@ -1,20 +1,19 @@
 "use client"
 
-import React, {useState} from 'react';
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {Button} from "@/components/ui/button";
-import {RxGithubLogo} from "react-icons/rx";
-import {FcGoogle} from "react-icons/fc";
-import {Label} from "@/components/ui/label";
-import {Input} from "@/components/ui/input";
-import {SubmitHandler, useForm} from "react-hook-form";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { RxGithubLogo } from "react-icons/rx";
+import { FcGoogle } from "react-icons/fc";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
-import {newUserSchema} from "@/lib/zodSchema";
-import {z} from "zod"
-import {createUser} from "@/actions/user";
+import { newUserSchema } from "@/lib/zodSchema";
+import { z } from "zod"
+import { createUser } from "@/actions/user";
 
 type Inputs = z.infer<typeof newUserSchema>
-
 
 
 const SignupForm = () => {
@@ -23,7 +22,7 @@ const SignupForm = () => {
     const {
         register,
         handleSubmit,
-        formState: {errors},
+        formState: { errors },
     } = useForm<Inputs>({
         resolver: zodResolver(newUserSchema)
     })
@@ -32,7 +31,7 @@ const SignupForm = () => {
         setLoading(true);
         const result = await createUser(data);
 
-        if(!result){
+        if (!result) {
             console.log("Something went wrong");
         }
 

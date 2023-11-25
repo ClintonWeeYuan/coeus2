@@ -1,65 +1,90 @@
 "use server"
-import {prisma} from "@/db";
-import {loginSchema, newUserSchema} from "@/lib/zodSchema";
-import {z} from "zod";
-import jwt, {JwtPayload} from "jsonwebtoken";
-import {LoginError} from "@/lib/customErrors/loginError";
+import { prisma } from "@/db";
+import { loginSchema, newUserSchema } from "@/lib/zodSchema";
+import { z } from "zod";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { cookies } from 'next/headers'
+import { getErrorMessage, ServerResponse } from "@/utils/errorHandling";
 
 type NewUser = z.infer<typeof newUserSchema>
 
-export async function createUser(data : NewUser){
-    const users = await prisma.user.create({
-        data: {
-            ...data,
-            weekSchedule: {
-                create: {
-                    schedule: '',
-                    timezone: '',
+export async function createUser(data: NewUser): Promise<ServerResponse> {
+    let user;
+
+    try {
+        user = await prisma.user.create({
+            data: {
+                ...data,
+                weekSchedule: {
+                    create: {
+                        schedule: '',
+                        timezone: '',
+                    }
                 }
             }
+        })
+    } catch (e) {
+        return {
+            success: false,
+            message: "Failed to create user"
         }
-    })
+    }
 
-    console.log(users);
-
-    return users;
+    return { success: true, message: "User successfully created", payload: user };
 }
 
 type LoginDetails = z.infer<typeof loginSchema>
-export async function login(data: LoginDetails): Promise<{success: boolean, token?: string}>{
-    const {email, password} = data;
-    const user  = await prisma.user.findUnique({
-        where: {
-            email,
-        }
-    })
 
-    if(!user){
-        throw new LoginError({name: "NO_USER_FOUND", message: "No such user with this email address exists"})
+export async function login(data: LoginDetails): Promise<ServerResponse> {
+    const { email, password } = data;
+
+    let user;
+    try {
+        user = await prisma.user.findUnique({
+            where: {
+                email,
+            }
+        })
+    } catch (e) {
+        return { success: false, message: getErrorMessage(e) }
     }
 
-    if(user.password != data.password){
-        throw new LoginError({name: "INCORRECT_PASSWORD", message: "Incorrect email and/or password"})
+
+    if (!user) {
+        // throw new Error("No such (user) exists..." )
+        return { success: false, message: "No such user exists" }
+    }
+
+    if (user.password != password) {
+        return { success: false, message: "Incorrect email/password combination" }
     }
 
     const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || "123456789", {
-        expiresIn: "10m",
+        expiresIn: "14d",
     });
+
+    const twoWeeksFromNow = 14 * 24 * 60 * 60 * 1000;
+    cookies().set('token', token, { expires: Date.now() + twoWeeksFromNow })
 
     return {
         success: true,
-        token,
+        message: "Successfully logged in"
     };
 }
 
 export const validateToken = async (token: string) => {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "123456789") as JwtPayload;
-    if (!decoded) {
-        return { message: "Expired",  status: 400}
-    } else if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) {
-        return {messsage: "Expired", status: 400};
-    } else {
-        // If the token is valid, return some protected data.
-        return { data: decoded, status: 200 };
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "123456789") as JwtPayload;
+
+        if (!decoded) {
+            return { message: "Expired", status: 400 }
+        } else if (decoded.exp && decoded.exp < Date.now()) {
+            return { message: "Expired", status: 400 };
+        } else {
+            // If the token is valid, return some protected data.
+            return { data: decoded, status: 200 };
+        }
+    } catch(e) {
+        return { message: "Please sign in again", status: 400 }
     }
 }

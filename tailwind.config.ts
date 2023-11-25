@@ -1,5 +1,5 @@
-import type {Config} from 'tailwindcss'
-import {fontFamily} from "tailwindcss/defaultTheme"
+import type { Config } from 'tailwindcss'
+import { fontFamily } from "tailwindcss/defaultTheme"
 
 const config: Config = {
     content: [
@@ -9,6 +9,22 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            colors: {
+                'primary': {
+                    500: "#131E3A"
+                },
+                'secondary': {
+                    400: '#E9DFD8',
+                    500: '#DDCDC2',
+                    600: "#DACABE",
+                    700: '#D2C0B1',
+                    800: '#CBB6A4',
+                    900: '#BCA28A'
+                },
+                'accent': {
+                    500: '#FF5454'
+                }
+            },
             backgroundImage: {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
                 'gradient-conic':
@@ -19,6 +35,6 @@ const config: Config = {
             },
         },
     },
-    plugins: [],
+    plugins: [require("@tailwindcss/typography")],
 }
 export default config
