@@ -1,90 +1,97 @@
-"use server"
-import { prisma } from "@/db";
-import { loginSchema, newUserSchema } from "@/lib/zodSchema";
-import { z } from "zod";
-import jwt, { JwtPayload } from "jsonwebtoken";
+'use server'
+import { prisma } from '@/db'
+import { loginSchema, newUserSchema } from '@/lib/zodSchema'
+import { z } from 'zod'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
-import { getErrorMessage, ServerResponse } from "@/utils/errorHandling";
+import { getErrorMessage, ServerResponse } from '@/utils/errorHandling'
+import { removeSession, setSession } from '@/actions/session'
 
 type NewUser = z.infer<typeof newUserSchema>
 
 export async function createUser(data: NewUser): Promise<ServerResponse> {
-    let user;
+  let user
 
-    try {
-        user = await prisma.user.create({
-            data: {
-                ...data,
-                weekSchedule: {
-                    create: {
-                        schedule: '',
-                        timezone: '',
-                    }
-                }
-            }
-        })
-    } catch (e) {
-        return {
-            success: false,
-            message: "Failed to create user"
-        }
+  try {
+    user = await prisma.user.create({
+      data: {
+        ...data,
+        weekSchedule: {
+          create: {
+            schedule: '',
+            timezone: '',
+          },
+        },
+      },
+    })
+  } catch (e) {
+    return {
+      success: false,
+      message: 'Failed to create user',
     }
+  }
 
-    return { success: true, message: "User successfully created", payload: user };
+  return { success: true, message: 'User successfully created', payload: user }
 }
 
 type LoginDetails = z.infer<typeof loginSchema>
 
 export async function login(data: LoginDetails): Promise<ServerResponse> {
-    const { email, password } = data;
+  const { email, password } = data
 
-    let user;
-    try {
-        user = await prisma.user.findUnique({
-            where: {
-                email,
-            }
-        })
-    } catch (e) {
-        return { success: false, message: getErrorMessage(e) }
-    }
+  let user
+  try {
+    user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    })
+  } catch (e) {
+    return { success: false, message: getErrorMessage(e) }
+  }
 
+  if (!user) {
+    // throw new Error("No such (user) exists..." )
+    return { success: false, message: 'No such user exists' }
+  }
 
-    if (!user) {
-        // throw new Error("No such (user) exists..." )
-        return { success: false, message: "No such user exists" }
-    }
+  if (user.password != password) {
+    return { success: false, message: 'Incorrect email/password combination' }
+  }
+  // const twoWeeksFromNow = 14 * 24 * 60 * 60 * 1000
 
-    if (user.password != password) {
-        return { success: false, message: "Incorrect email/password combination" }
-    }
+  // const token = jwt.sign(
+  //   { id: user.id, email: user.email },
+  //   process.env.JWT_SECRET || '123456789',
+  //   {
+  //     expiresIn: twoWeeksFromNow,
+  //   }
+  // )
 
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET || "123456789", {
-        expiresIn: "14d",
-    });
+  setSession({ userId: user.id, dateOfCreation: Date.now() })
 
-    const twoWeeksFromNow = 14 * 24 * 60 * 60 * 1000;
-    cookies().set('token', token, { expires: Date.now() + twoWeeksFromNow })
-
-    return {
-        success: true,
-        message: "Successfully logged in"
-    };
+  return {
+    success: true,
+    message: 'Successfully logged in',
+  }
 }
 
 export const validateToken = async (token: string) => {
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "123456789") as JwtPayload;
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || '123456789'
+    ) as JwtPayload
 
-        if (!decoded) {
-            return { message: "Expired", status: 400 }
-        } else if (decoded.exp && decoded.exp < Date.now()) {
-            return { message: "Expired", status: 400 };
-        } else {
-            // If the token is valid, return some protected data.
-            return { data: decoded, status: 200 };
-        }
-    } catch(e) {
-        return { message: "Please sign in again", status: 400 }
+    if (!decoded) {
+      return { message: 'Expired', status: 400 }
+    } else if (decoded.exp && Date.now() >= decoded.exp * 1000) {
+      return { message: 'Expired', status: 400 }
+    } else {
+      // If the token is valid, return some protected data.
+      return { data: decoded, status: 200 }
     }
+  } catch (e) {
+    return { message: 'Please sign in again', status: 400 }
+  }
 }

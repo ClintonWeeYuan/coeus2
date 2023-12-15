@@ -1,48 +1,38 @@
-import React, { ReactNode, useState } from 'react';
-import { ClassSlot, ScheduleContext } from "@/context/ScheduleContext";
+import React, { ReactNode, useState } from 'react'
+import { ScheduleContext } from '@/context/ScheduleContext'
+import { ClassEvent } from '@prisma/client'
 
 interface Props {
-    children: ReactNode;
+  children: ReactNode
+  initialClassEvents: ClassEvent[]
 }
 
-const ScheduleContextProvider = ({ children }: Props) => {
+const ScheduleContextProvider = ({ children, initialClassEvents }: Props) => {
+  const [classEvents, setClassEvents] = useState<ClassEvent[]>(
+    initialClassEvents || []
+  )
+  const updateClassEvents = (newClassEvents: ClassEvent[]) => {
+    setClassEvents(newClassEvents)
+  }
 
-    const [classSlots, setClassSlots] = useState<ClassSlot[]>([
-        {
-            id: 1,
-            day: 0,
-            start: 2,
-            duration: 5,
-            name: "Class with Clinton"
-        },
-        {
-            id: 2,
-            day: 1,
-            start: 2,
-            duration: 3,
-            name: "Class with  Zoe"
-        }
-    ])
-    const updateClassSlots = (newClassSlots: ClassSlot[]) => {
-        setClassSlots(newClassSlots);
-    }
+  const [currentDay, setCurrentDay] = useState(new Date())
 
-    const [currentDay, setCurrentDay] = useState(new Date());
+  const updateCurrentDay = (newDate: Date) => {
+    setCurrentDay(newDate)
+  }
 
-    const updateCurrentDay = (newDate: Date) => {
-        setCurrentDay(newDate);
-    }
+  return (
+    <ScheduleContext.Provider
+      value={{
+        classEvents,
+        updateClassEvents,
+        currentDay,
+        updateCurrentDay,
+      }}
+    >
+      {children}
+    </ScheduleContext.Provider>
+  )
+}
 
-    return (
-        <ScheduleContext.Provider value={{
-            classSlots,
-            updateClassSlots,
-            currentDay,
-            updateCurrentDay
-        }}>
-            {children}
-        </ScheduleContext.Provider>
-    );
-};
-
-export default ScheduleContextProvider;
+export default ScheduleContextProvider
