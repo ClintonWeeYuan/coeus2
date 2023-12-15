@@ -33,6 +33,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
     handleServerResponse(result)
     if (success) {
+      console.log('HELLO THERE')
       router.push('/dashboard')
     }
   }

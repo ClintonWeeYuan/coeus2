@@ -56,7 +56,7 @@ const EditClassForm = ({ classEvent }: Props) => {
             <LinkField />
           </div>
           <DialogFooter>
-            <Button type="submit">Create Class</Button>
+            <Button type="submit">Update Class</Button>
             <Button type="button" onClick={() => console.log(form.getValues())}>
               Errors
             </Button>
