@@ -33,7 +33,10 @@ export async function createClass(data: NewClass): Promise<ServerResponse> {
 export async function updateClass(data: ClassEvent): Promise<ServerResponse> {
   let classEvent
   try {
-    classEvent = await prisma.classEvent.create({
+    classEvent = await prisma.classEvent.update({
+      where: {
+        id: data.id,
+      },
       data: {
         ...data,
       },
@@ -42,13 +45,13 @@ export async function updateClass(data: ClassEvent): Promise<ServerResponse> {
     console.log(e)
     return {
       success: false,
-      message: 'Failed to create class',
+      message: 'Failed to update class',
     }
   }
 
   return {
     success: true,
-    message: 'Class successfully created',
+    message: 'Class successfully updated',
     payload: classEvent,
   }
 }

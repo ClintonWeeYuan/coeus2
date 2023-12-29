@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { Session } from './actions/session'
 import { decrypt } from './utils/encryption'
-
 const twoWeeks = 2 * 7 * 24 * 60 * 60 * 1000
 
 export async function middleware(request: NextRequest) {
   const session = request.cookies.get('session')
+
   if (session?.value) {
     try {
       const decrypted = await decrypt(session.value, 'pw')

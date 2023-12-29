@@ -79,6 +79,9 @@ const ScheduleTable = () => {
     const { weekdayIndex: newWeekdayIndex, timeIndex: newTimeIndex } = over
       ?.data.current as DroppableData
 
+    if (prevWeekdayIndex == newWeekdayIndex && prevTimeIndex == newTimeIndex)
+      return
+
     for (let i = newTimeIndex; i <= newTimeIndex + duration; i++) {
       if (occupyList[newWeekdayIndex][i].id === id) continue
       if (occupyList[newWeekdayIndex][i].isOccupied) return
@@ -106,11 +109,13 @@ const ScheduleTable = () => {
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
     >
+      /*
       <EditClassModal
         classEvent={activeClassEvent}
         open={openEdit}
         setOpen={setOpenEdit}
       />
+      */
       <div className="overflow-x-auto h-[calc(100%-72px)]">
         <div className="flex h-[40px]">
           <div className="w-24 hidden md:block"></div>

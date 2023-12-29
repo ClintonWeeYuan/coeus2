@@ -12,6 +12,7 @@ import { z } from 'zod'
 import { loginSchema } from '@/lib/zodSchema'
 import { useRouter } from 'next/navigation'
 import { handleServerResponse } from '@/utils/errorHandling'
+import { setSession } from '@/actions/session'
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -29,11 +30,11 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   })
   const onSubmit: SubmitHandler<Input> = async (data) => {
     const result = await login(data)
-    const { success } = result
+    const { success, payload } = result
 
     handleServerResponse(result)
     if (success) {
-      console.log('HELLO THERE')
+      await setSession(payload)
       router.push('/dashboard')
     }
   }

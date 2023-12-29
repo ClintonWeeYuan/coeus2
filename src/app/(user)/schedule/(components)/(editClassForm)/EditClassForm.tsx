@@ -2,7 +2,7 @@ import { FormProvider, SubmitHandler, useForm } from 'react-hook-form'
 import { DialogFooter } from '@/components/ui/dialog'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { existingClassSchema } from '@/lib/zodSchema'
-import { createClass } from '@/actions/schedule'
+import { updateClass } from '@/actions/schedule'
 import { handleServerResponse } from '@/utils/errorHandling'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
@@ -37,7 +37,7 @@ const EditClassForm = ({ classEvent }: Props) => {
   }, [user, form])
 
   const onSubmit: SubmitHandler<ClassEvent> = async (data) => {
-    const result = await createClass(data)
+    const result = await updateClass(data)
     handleServerResponse(result)
   }
 

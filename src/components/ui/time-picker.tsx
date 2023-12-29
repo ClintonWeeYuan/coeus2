@@ -5,44 +5,55 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { DateTime } from 'luxon'
-import { useEffect, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useState } from 'react'
 
 const hourArray = Array.from({ length: 12 }, (_, i) => i + 1)
 const minuteArray = ['00', '30']
+
 interface Props {
   value: Date
   onChange: (currentValue: Date) => void
 }
 
 const TimePicker = ({ value, onChange }: Props) => {
-  // const { setValue, watch } = useFormContext()
-
-  // const watchStartDate = watch('startDate')
-
   const [currentTime, setCurrentTime] = useState({
-    hour: 11,
-    minute: 0,
-    IsAm: false,
+    hour: value.getHours() % 12,
+    minute: value.getMinutes(),
+    IsAm: value.getHours() < 12,
   })
 
-  useEffect(() => {
-    const startDateTime = new Date(value)
-    const startHour = currentTime.hour + (currentTime.IsAm ? 12 : 0)
-    startDateTime.setHours(startHour, currentTime.minute, 0, 0)
-    onChange(startDateTime)
-  }, [value, currentTime, onChange])
+  const handleHourChange = (newHour: string) => {
+    const newDate = new Date(value)
+    const startHour = parseInt(newHour) + (currentTime.IsAm ? 12 : 0)
+    newDate.setHours(startHour)
+    onChange(newDate)
+    setCurrentTime((prev) => ({ ...prev, hour: parseInt(newHour) }))
+  }
+
+  const handleMinuteChange = (newMinute: string) => {
+    const newDate = new Date(value)
+    newDate.setMinutes(parseInt(newMinute))
+    onChange(newDate)
+    setCurrentTime((prev) => ({ ...prev, minute: parseInt(newMinute) }))
+  }
+
+  const handleAmPmChange = (amOrPm: string) => {
+    const isAm = amOrPm == 'AM'
+    const newDate = new Date(value)
+    const startHour = currentTime.hour + (isAm ? 0 : 12)
+    newDate.setHours(startHour)
+    onChange(newDate)
+    setCurrentTime((prev) => ({ ...prev, isAm }))
+  }
 
   return (
     <div className="flex items-center justify-center pb-4">
       <Select
-        onValueChange={(e) =>
-          setCurrentTime((prevState) => ({ ...prevState, hour: parseInt(e) }))
-        }
+        onValueChange={handleHourChange}
+        defaultValue={currentTime.hour.toString()}
       >
         <SelectTrigger className="w-18 border-none shadow-none">
-          <SelectValue placeholder="12" />
+          <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {hourArray.map((hour) => (
@@ -54,12 +65,11 @@ const TimePicker = ({ value, onChange }: Props) => {
       </Select>
       <span className="">:</span>
       <Select
-        onValueChange={(e) =>
-          setCurrentTime((prevState) => ({ ...prevState, minute: parseInt(e) }))
-        }
+        onValueChange={handleMinuteChange}
+        defaultValue={currentTime.minute == 0 ? '00' : '30'}
       >
         <SelectTrigger className="w-18 border-none shadow-none">
-          <SelectValue placeholder="12" />
+          <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {minuteArray.map((minute) => (
@@ -70,12 +80,11 @@ const TimePicker = ({ value, onChange }: Props) => {
         </SelectContent>
       </Select>
       <Select
-        onValueChange={(e) =>
-          setCurrentTime((prevState) => ({ ...prevState, isAm: e == 'AM' }))
-        }
+        onValueChange={handleAmPmChange}
+        defaultValue={currentTime.IsAm ? 'AM' : 'PM'}
       >
         <SelectTrigger className="w-18 border-none shadow-none">
-          <SelectValue placeholder="AM" />
+          <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="AM">AM</SelectItem>

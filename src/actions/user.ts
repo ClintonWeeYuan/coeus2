@@ -3,9 +3,7 @@ import { prisma } from '@/db'
 import { loginSchema, newUserSchema } from '@/lib/zodSchema'
 import { z } from 'zod'
 import jwt, { JwtPayload } from 'jsonwebtoken'
-import { cookies } from 'next/headers'
 import { getErrorMessage, ServerResponse } from '@/utils/errorHandling'
-import { removeSession, setSession } from '@/actions/session'
 
 type NewUser = z.infer<typeof newUserSchema>
 
@@ -58,21 +56,13 @@ export async function login(data: LoginDetails): Promise<ServerResponse> {
   if (user.password != password) {
     return { success: false, message: 'Incorrect email/password combination' }
   }
-  // const twoWeeksFromNow = 14 * 24 * 60 * 60 * 1000
 
-  // const token = jwt.sign(
-  //   { id: user.id, email: user.email },
-  //   process.env.JWT_SECRET || '123456789',
-  //   {
-  //     expiresIn: twoWeeksFromNow,
-  //   }
-  // )
-
-  setSession({ userId: user.id, dateOfCreation: Date.now() })
+  const sessionData = { userId: user.id, dateOfCreation: Date.now() }
 
   return {
     success: true,
     message: 'Successfully logged in',
+    payload: sessionData,
   }
 }
 

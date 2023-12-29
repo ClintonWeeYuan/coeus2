@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
 import UserAuthForm from '@/app/auth/login/(components)/UserAuthForm'
 
 function Page() {

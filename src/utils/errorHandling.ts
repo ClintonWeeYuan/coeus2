@@ -20,7 +20,7 @@ export const getErrorMessage = (error: unknown) => {
 
 export const handleServerResponse = (response: ServerResponse) => {
   const { success, message } = response
-  if (response.success) {
+  if (success) {
     toast({
       title: message,
       description: 'Friday, February 10, 2023 at 5:57 PM',

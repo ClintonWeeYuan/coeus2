@@ -6,7 +6,6 @@ import { Calendar } from './calendar'
 import TimePicker from './time-picker'
 import { cn } from '@/lib/utils'
 import { DateTime } from 'luxon'
-import { useFormContext } from 'react-hook-form'
 
 interface Props {
   value: Date
@@ -15,14 +14,13 @@ interface Props {
 
 const formatDate = (date: Date): string => {
   const newDate = new Date(date)
-  const formattedDate = DateTime.fromJSDate(newDate).toLocaleString(
-    DateTime.DATETIME_MED
+  const formattedDate = DateTime.fromJSDate(newDate).toFormat(
+    'dd MMM yyyy, hh:mm a'
   )
   return formattedDate
 }
 
 const DateTimePicker = ({ value, onChange }: Props) => {
-  const { setValue } = useFormContext()
   const handleDaySelect = (date: Date | undefined) => {
     if (!date) return
     const hours = value.getHours()

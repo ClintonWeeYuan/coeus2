@@ -1,3 +1,5 @@
+'use server'
+
 import { decrypt, encrypt } from '@/utils/encryption'
 import { cookies } from 'next/headers'
 export type Session = {
@@ -12,8 +14,10 @@ export const getSession = async (): Promise<Session | null> => {
   if (session?.value) {
     try {
       const decrypted = await decrypt(session.value, 'pw')
+      console.log(decrypted)
       return JSON.parse(decrypted) as Session
     } catch {
+      console.log('ERROR decrypting')
       // Ignore invalid session
     }
   }
@@ -22,9 +26,8 @@ export const getSession = async (): Promise<Session | null> => {
 }
 
 export const setSession = async (session: Session) => {
-  const cookieStore = cookies()
   const encrypted = await encrypt(JSON.stringify(session), 'pw')
-  cookieStore.set('session', encrypted)
+  cookies().set('session', encrypted)
 }
 
 export const removeSession = async () => {
