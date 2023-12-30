@@ -23,9 +23,17 @@ import {
 import { Info } from 'luxon'
 import EditClassModal from './EditClassModal'
 import { ClassEvent } from '@prisma/client'
+import { createSnapModifier } from '@dnd-kit/modifiers'
+import { useElementSize } from 'usehooks-ts'
+import { createCalendarModifier } from '@/utils/dndModifier'
 
 const ScheduleTable = () => {
   const isMobile = useWindowSize()
+  const [calendarRef, { width, height }] = useElementSize()
+  const timeWidth = 70 //w-24
+  const dayColumnWidth = (width - timeWidth) / 7
+  console.log(width)
+  console.log(dayColumnWidth)
   const [openEdit, setOpenEdit] = useState(false)
   const { classEvents, updateClassEvents, currentDay } = useScheduleContext()
 
@@ -33,6 +41,9 @@ const ScheduleTable = () => {
   const [activeClassEvent, setActiveClassEvent] = useState<null | ClassEvent>(
     null
   )
+  const gridSize = 20 // pixels
+  const snapToGridModifier = createSnapModifier(gridSize)
+  const snapToCalendarModifier = createCalendarModifier(dayColumnWidth, 20)
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
@@ -108,21 +119,24 @@ const ScheduleTable = () => {
       id="dnd-context-id"
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
+      modifiers={[snapToCalendarModifier]}
     >
-      /*
       <EditClassModal
         classEvent={activeClassEvent}
         open={openEdit}
         setOpen={setOpenEdit}
       />
-      */
-      <div className="overflow-x-auto h-[calc(100%-72px)]">
-        <div className="flex h-[40px]">
-          <div className="w-24 hidden md:block"></div>
+      <div
+        ref={calendarRef}
+        className="overflow-x-auto h-[calc(100%-72px)] box-border "
+      >
+        <div className="flex pb-4">
+          <div className=" hidden md:block" style={{ width: timeWidth }}></div>
           {weekdays.map((weekday, index) => (
             <div
               key={weekday.toString()}
-              className="flex flex-col items-center w-full md:w-[200px] text-gray-400"
+              className="flex flex-col items-center text-gray-400"
+              style={{ width: dayColumnWidth }}
             >
               <p
                 className={cn(
@@ -141,15 +155,17 @@ const ScheduleTable = () => {
               <div className="w-full flex">
                 <div
                   className={cn(
-                    'w-24 border-b-[1px] border-gray-300',
+                    'border-b-[1px] border-gray-300',
                     index == 0 && 'border-t-[1px]'
                   )}
+                  style={{ width: timeWidth }}
                 >
                   <p className="text-xs text-secondary-900">{time}</p>
                 </div>
                 {weekdays.map((weekday, weekdayIndex) => (
                   <div
-                    className="relative w-[200px] border-[1px] border-gray-200 h-20"
+                    className="relative border-[1px] border-gray-200 h-20"
+                    style={{ width: dayColumnWidth }}
                     key={weekday.getDate()}
                   >
                     <DroppableSpace
