@@ -25,7 +25,7 @@ function DroppableSpace({
   timeIndex,
   occupied,
 }: Props) {
-  const { isOver, setNodeRef } = useDroppable({
+  const { setNodeRef } = useDroppable({
     id: `droppable-${id}`,
     data: {
       weekdayIndex,
@@ -35,13 +35,7 @@ function DroppableSpace({
   })
 
   return (
-    <div
-      ref={setNodeRef}
-      className={cn(
-        'relative w-full h-full',
-        isOver && 'border-dotted border-2 border-accent-500'
-      )}
-    >
+    <div ref={setNodeRef} className="relative w-full h-full">
       {children}
     </div>
   )

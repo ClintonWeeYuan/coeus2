@@ -10,7 +10,6 @@ import EventCard from './EventCard'
 import DroppableSpace, { DroppableData } from './DroppableSpace'
 import DraggableEvent, { DraggableClassEventData } from './DraggableEvent'
 import { useMemo, useState } from 'react'
-import useWindowSize from '@/components/hooks/useWindowSize'
 import { useScheduleContext } from '@/context/ScheduleContext'
 import { cn } from '@/lib/utils'
 import { TIME_ARRAY } from '../(lib)/times'
@@ -23,26 +22,26 @@ import {
 import { Info } from 'luxon'
 import EditClassModal from './EditClassModal'
 import { ClassEvent } from '@prisma/client'
-import { createSnapModifier } from '@dnd-kit/modifiers'
-import { useElementSize } from 'usehooks-ts'
+import { useElementSize, useWindowSize } from 'usehooks-ts'
 import { createCalendarModifier } from '@/utils/dndModifier'
+import LoadingPage from '@/components/ui/loading-page'
+import { useMousePosition } from '@/components/hooks/useMousePosition'
 
 const ScheduleTable = () => {
-  const isMobile = useWindowSize()
-  const [calendarRef, { width, height }] = useElementSize()
+  const { width: windowWidth } = useWindowSize()
+  const isMobile = windowWidth > 0 && windowWidth <= 640
+  const [calendarRef, { width }] = useElementSize()
   const timeWidth = 70 //w-24
   const dayColumnWidth = (width - timeWidth) / 7
-  console.log(width)
-  console.log(dayColumnWidth)
   const [openEdit, setOpenEdit] = useState(false)
   const { classEvents, updateClassEvents, currentDay } = useScheduleContext()
-
+  const [mouseRef, { x: mouseX, y: mouseY }] = useMousePosition()
+  console.log(mouseX)
+  console.log(mouseY)
   const [activeId, setActiveId] = useState<null | string>(null)
   const [activeClassEvent, setActiveClassEvent] = useState<null | ClassEvent>(
     null
   )
-  const gridSize = 20 // pixels
-  const snapToGridModifier = createSnapModifier(gridSize)
   const snapToCalendarModifier = createCalendarModifier(dayColumnWidth, 20)
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -58,22 +57,24 @@ const ScheduleTable = () => {
   const today = new Date()
   const monday = useMemo(() => getMonday(currentDay), [currentDay])
 
-  const singleWeekday = [today]
-
   const totalWeekdays = Array.from(Array(7)).map((item, index) => {
     const newDate = new Date(monday)
     newDate.setDate(newDate.getDate() + index)
     return newDate
   })
 
-  const weekdays = isMobile ? singleWeekday : totalWeekdays
-
+  const singleDay = [today]
+  const weekdays = isMobile ? singleDay : totalWeekdays
   const schedule = useMemo(() => {
-    return createInitialSchedule(classEvents, weekdays)
+    const initialSchedule = createInitialSchedule(classEvents, totalWeekdays)
+    const displaySchedule = isMobile
+      ? [initialSchedule[today.getDay()]]
+      : initialSchedule
+    return displaySchedule
   }, [classEvents, weekdays])
 
   const occupyList = useMemo(() => {
-    return createOccupyList(classEvents, weekdays)
+    return createOccupyList(classEvents, totalWeekdays)
   }, [classEvents, weekdays])
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -114,6 +115,8 @@ const ScheduleTable = () => {
     setOpenEdit(true)
   }
 
+  if (windowWidth == 0) return <LoadingPage />
+
   return (
     <DndContext
       id="dnd-context-id"
@@ -149,7 +152,10 @@ const ScheduleTable = () => {
             </div>
           ))}
         </div>
-        <div className="flex flex-col overflow-y-auto h-[calc(100%-40px)] scrollbar-hide">
+        <div
+          ref={mouseRef}
+          className="flex flex-col overflow-y-auto h-[calc(100%-40px)] scrollbar-hide"
+        >
           {TIME_ARRAY.map((time, index) => (
             <div className="flex flex-col" key={time}>
               <div className="w-full flex">
