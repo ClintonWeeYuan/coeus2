@@ -18,18 +18,21 @@ import LinkField from './Link'
 import StartTimeField from './StartTime'
 import useUser from '@/components/hooks/useUser'
 import { useEffect } from 'react'
+import { getDefaultStartAndEndDates } from '@/utils/scheduleHelpers'
 
 type Input = z.infer<typeof newClassSchema>
 
 const CreateClassForm = () => {
   const { user } = useUser()
 
+  const { defaultStartDate, defaultEndDate } = getDefaultStartAndEndDates()
+
   const form = useForm<Input>({
     resolver: zodResolver(newClassSchema),
     defaultValues: {
       ownerId: user.id,
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: defaultStartDate,
+      endDate: defaultEndDate,
     },
   })
 

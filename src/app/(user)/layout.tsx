@@ -7,11 +7,12 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  //md:w-[calc(100%-384px)] b
   return (
     <div className="flex">
       <Sidebar />
       <MobileSidebar />
-      <div className="md:ml-96 min-h-screen w-full md:w-[calc(100%-384px)] border-l-2 border-l-stone-200 bg-white">
+      <div className="md:ml-96 min-h-screen border-l-2 border-l-stone-200 bg-white">
         {children}
       </div>
     </div>

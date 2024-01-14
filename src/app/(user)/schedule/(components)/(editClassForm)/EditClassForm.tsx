@@ -20,9 +20,10 @@ import { ClassEvent } from '@prisma/client'
 
 interface Props {
   classEvent: ClassEvent
+  closeModal: () => void
 }
 
-const EditClassForm = ({ classEvent }: Props) => {
+const EditClassForm = ({ classEvent, closeModal }: Props) => {
   const { user } = useUser()
 
   const form = useForm<ClassEvent>({
@@ -38,7 +39,10 @@ const EditClassForm = ({ classEvent }: Props) => {
 
   const onSubmit: SubmitHandler<ClassEvent> = async (data) => {
     const result = await updateClass(data)
-    handleServerResponse(result)
+    if (result.success) {
+      handleServerResponse(result)
+      closeModal()
+    }
   }
 
   return (

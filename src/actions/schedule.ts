@@ -56,12 +56,22 @@ export async function updateClass(data: ClassEvent): Promise<ServerResponse> {
   }
 }
 
-export async function getClass(userId: number): Promise<ServerResponse> {
+export async function getClass(
+  userId: number,
+  period: { start: Date; end: Date }
+): Promise<ServerResponse> {
+  const { start, end } = period
+
+  console.log(start)
   let classEvents
   try {
     classEvents = await prisma.classEvent.findMany({
       where: {
         ownerId: userId,
+        startDate: {
+          gte: start,
+          lte: end,
+        },
       },
     })
   } catch (e) {

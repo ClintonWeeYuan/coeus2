@@ -1,5 +1,5 @@
 import React, { ReactNode, useState } from 'react'
-import { ScheduleContext } from '@/context/ScheduleContext'
+import { ScheduleContext, ScheduleView } from '@/context/ScheduleContext'
 import { ClassEvent } from '@prisma/client'
 
 interface Props {
@@ -17,8 +17,15 @@ const ScheduleContextProvider = ({ children, initialClassEvents }: Props) => {
 
   const [currentDay, setCurrentDay] = useState(new Date())
 
-  const updateCurrentDay = (newDate: Date) => {
+  const updateCurrentDay = async (newDate: Date) => {
     setCurrentDay(newDate)
+  }
+
+  const [currentView, setCurrentView] = useState<ScheduleView>(
+    ScheduleView.week
+  )
+  const updateCurrentView = (newView: ScheduleView) => {
+    setCurrentView(newView)
   }
 
   return (
@@ -28,6 +35,8 @@ const ScheduleContextProvider = ({ children, initialClassEvents }: Props) => {
         updateClassEvents,
         currentDay,
         updateCurrentDay,
+        currentView,
+        updateCurrentView,
       }}
     >
       {children}

@@ -1,5 +1,12 @@
 import { ClassEvent } from '@prisma/client'
 
+export const getDayIndex = (date: Date) => {
+  //In Date object, Sunday is taken as 0, but we want to convert it to Monday as 0
+
+  const initialIndex = date.getDay()
+  return initialIndex == 0 ? 6 : initialIndex - 1
+}
+
 export const getMonday = (currentDate: Date) => {
   const newDate = new Date(currentDate)
   const currentDay = newDate.getDay()
@@ -17,17 +24,28 @@ export const isToday = (date: Date) => {
   )
 }
 
+export const getWeekRange = (date: Date): { start: Date; end: Date } => {
+  const monday = getMonday(date)
+
+  const sundayEnd = new Date(monday)
+  sundayEnd.setDate(monday.getDate() + 6)
+  sundayEnd.setHours(23, 0, 0, 0)
+
+  return { start: monday, end: sundayEnd }
+}
+
 export const createOccupyList = (
   classEvents: ClassEvent[],
-  weekdays: Date[]
+  numDays: number
 ) => {
-  const initialSchedule = Array.from(weekdays, () =>
+  const dayArray = Array.from(Array(numDays).keys())
+  const initialSchedule = Array.from(dayArray, () =>
     new Array(24).fill({ isOccupied: false, id: 0 })
   )
 
   classEvents.forEach((slot: ClassEvent) => {
     const { startDate, endDate } = slot
-    const day = startDate.getDay()
+    const day = getDayIndex(startDate)
     const startTime = startDate.getHours()
     const duration = endDate.getHours() - startDate.getHours()
 
@@ -44,12 +62,13 @@ export const createOccupyList = (
 
 export const createInitialSchedule = (
   classEvents: ClassEvent[],
-  weekdays: Date[]
+  numDays: number
 ) => {
-  const initialSchedule = Array.from(weekdays, () => new Array(24).fill(null))
+  const dayArray = Array.from(Array(numDays).keys())
+  const initialSchedule = Array.from(dayArray, () => new Array(24).fill(null))
   classEvents.forEach((slot) => {
     const { startDate, endDate, title } = slot
-    const day = startDate.getDay() - 1
+    const day = getDayIndex(startDate)
     const startTime = startDate.getHours()
     const durationInMinutes =
       endDate.getHours() * 60 +
@@ -68,4 +87,31 @@ export const createInitialSchedule = (
   })
 
   return initialSchedule
+}
+
+export const getNearestHalfHour = (date: Date) => {
+  const dateToNearestHalfHour = new Date(date)
+  const isPastHalfHourMark = dateToNearestHalfHour.getMinutes() >= 30
+
+  dateToNearestHalfHour.setMinutes(isPastHalfHourMark ? 0 : 30, 0, 0)
+  dateToNearestHalfHour.setHours(
+    isPastHalfHourMark
+      ? dateToNearestHalfHour.getHours() + 1
+      : dateToNearestHalfHour.getHours()
+  )
+
+  return dateToNearestHalfHour
+}
+
+export const getDefaultStartAndEndDates = (): {
+  defaultStartDate: Date
+  defaultEndDate: Date
+} => {
+  const today = new Date()
+
+  const defaultStartDate = getNearestHalfHour(today)
+  const defaultEndDate = new Date(defaultStartDate)
+  defaultEndDate.setHours(defaultEndDate.getHours() + 1)
+
+  return { defaultStartDate, defaultEndDate }
 }

@@ -15,16 +15,27 @@ export function useMousePosition<T extends HTMLElement = HTMLDivElement>(): [
 
   const [ref, setRef] = useState<T | null>(null)
 
+  const snapMouseYPosition = (mouseYPosition: number) => {
+    return Math.min(23 * 80, Math.round(mouseYPosition / 40) * 40)
+  }
+
   const updateMousePosition = useCallback(
     (ev: MouseEvent) => {
-      const topOfElement = ref.getBoundingClientRect().top
-      const leftOfElement = ref.getBoundingClientRect().left
+      const topOfElement = ref?.getBoundingClientRect().top || 0
+      const leftOfElement = ref?.getBoundingClientRect().left || 0
+
+      const scrollHeight = ref?.scrollTop || 0
+
       const mouseXPosition = ev.clientX ?? 0
       const mouseYPosition = ev.clientY ?? 0
 
       const mouseRelativeX = mouseXPosition - leftOfElement
-      const mouseRelativeY = mouseYPosition - topOfElement
-      setMousePosition({ x: mouseRelativeX, y: mouseRelativeY })
+      const mouseRelativeY = mouseYPosition - topOfElement + scrollHeight
+
+      setMousePosition({
+        x: mouseRelativeX,
+        y: snapMouseYPosition(mouseRelativeY),
+      })
     },
     [ref]
   )

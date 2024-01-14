@@ -5,6 +5,7 @@ import { List, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useScheduleContext } from '@/context/ScheduleContext'
 import { DateTime } from 'luxon'
 import CreateClassModal from './CreateClassModal'
+import SelectScheduleView from './SelectScheduleView'
 
 const Header = () => {
   const { currentDay, updateCurrentDay } = useScheduleContext()
@@ -16,13 +17,13 @@ const Header = () => {
   }
 
   return (
-    <div className="flex justify-between items-center mb-8 h-[40px]">
-      <div>
-        <p className="text-2xl font-semibold">
+    <div className="grid gap-2 grid-cols-5 mb-8">
+      <div className="col-span-3 md:col-span-2 flex items-center">
+        <p className="text-md md:text-2xl font-semibold">
           {DateTime.fromISO(currentDay.toISOString()).toFormat('LLLL kkkk')}
         </p>
       </div>
-      <div className="flex">
+      <div className="col-span-2 md:col-span-1 flex">
         <Button onClick={() => handleDayChange(-1)} variant="ghost" size="icon">
           <ChevronLeft />
         </Button>
@@ -32,8 +33,10 @@ const Header = () => {
         <Button onClick={() => handleDayChange(1)} variant="ghost" size="icon">
           <ChevronRight />
         </Button>
-
-        <Button className="ml-6 mr-2">Filter</Button>
+      </div>
+      <div className="flex md:justify-end col-span-5 md:col-span-2">
+        <SelectScheduleView />
+        {/* <Button className="ml-6 mr-2">Filter</Button> */}
         <Button variant="outline" size="icon">
           <List />
         </Button>

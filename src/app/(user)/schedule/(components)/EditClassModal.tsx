@@ -7,16 +7,27 @@ interface Props {
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
   classEvent: ClassEvent | null
+  revertClassEventUpdate: () => void
 }
 
-const EditClassModal = ({ open, setOpen, classEvent }: Props) => {
-  // const [open, setOpen] = useState(false)
-
+const EditClassModal = ({
+  open,
+  setOpen,
+  classEvent,
+  revertClassEventUpdate,
+}: Props) => {
+  const handleClose = (close: boolean) => {
+    setOpen(close)
+    revertClassEventUpdate()
+  }
   if (classEvent) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent>
-          <EditClassForm classEvent={classEvent} />
+          <EditClassForm
+            closeModal={() => setOpen(false)}
+            classEvent={classEvent}
+          />
         </DialogContent>
       </Dialog>
     )
