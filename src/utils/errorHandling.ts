@@ -3,6 +3,7 @@ import { toast } from '@/components/ui/use-toast'
 export type ServerResponse = {
   success: boolean
   message: string
+  /*eslint-disable @typescript-eslint/no-explicit-any*/
   payload?: any
 }
 

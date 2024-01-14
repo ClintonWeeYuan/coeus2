@@ -12,7 +12,7 @@ interface Props {
 const ScheduleContainer = ({ initialSchedule }: Props) => {
   return (
     <ScheduleContextProvider initialClassEvents={initialSchedule}>
-      <div className="p-6 overflow-hidden h-screen">
+      <div className="p-6 h-screen">
         <Header />
         <ScheduleTable />
       </div>

@@ -6,7 +6,7 @@ import { Session } from '@/actions/session'
 
 const loggedOutUser = { id: -1, dateOfCreation: 0 }
 
-const useUser = ({ redirectTo = '', redirectIfFound = false } = {}) => {
+const useUser = () => {
   const router = useRouter()
 
   const [user, setUser] = useState(loggedOutUser)

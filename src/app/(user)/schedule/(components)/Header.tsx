@@ -23,7 +23,7 @@ const Header = () => {
           {DateTime.fromISO(currentDay.toISOString()).toFormat('LLLL kkkk')}
         </p>
       </div>
-      <div className="col-span-2 md:col-span-1 flex">
+      <div className="col-span-2 md:col-span-1 flex justify-end md:justify-center">
         <Button onClick={() => handleDayChange(-1)} variant="ghost" size="icon">
           <ChevronLeft />
         </Button>
@@ -34,9 +34,8 @@ const Header = () => {
           <ChevronRight />
         </Button>
       </div>
-      <div className="flex md:justify-end col-span-5 md:col-span-2">
+      <div className="flex justify-center md:justify-end col-span-5 md:col-span-2">
         <SelectScheduleView />
-        {/* <Button className="ml-6 mr-2">Filter</Button> */}
         <Button variant="outline" size="icon">
           <List />
         </Button>

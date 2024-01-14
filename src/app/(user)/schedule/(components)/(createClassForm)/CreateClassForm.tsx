@@ -61,9 +61,6 @@ const CreateClassForm = () => {
           </div>
           <DialogFooter>
             <Button type="submit">Create Class</Button>
-            <Button type="button" onClick={() => console.log(form.getValues())}>
-              Errors
-            </Button>
           </DialogFooter>
         </form>
       </FormProvider>

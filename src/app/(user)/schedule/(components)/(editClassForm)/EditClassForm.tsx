@@ -61,9 +61,6 @@ const EditClassForm = ({ classEvent, closeModal }: Props) => {
           </div>
           <DialogFooter>
             <Button type="submit">Update Class</Button>
-            <Button type="button" onClick={() => console.log(form.getValues())}>
-              Errors
-            </Button>
           </DialogFooter>
         </form>
       </FormProvider>

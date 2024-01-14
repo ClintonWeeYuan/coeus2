@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
-import { useEventListener, useIsomorphicLayoutEffect } from 'usehooks-ts'
+import { useState, useCallback } from 'react'
+import { useEventListener } from 'usehooks-ts'
+
 interface MousePosition {
   x: number | null
   y: number | null

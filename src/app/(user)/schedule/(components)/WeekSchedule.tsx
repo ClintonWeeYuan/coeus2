@@ -6,7 +6,6 @@ import {
   DragOverlay,
   DragStartEvent,
 } from '@dnd-kit/core'
-import EventCard from './EventCard'
 import DroppableSpace, { DroppableData } from './DroppableSpace'
 import DraggableEvent, { DraggableClassEventData } from './DraggableEvent'
 import { useEffect, useMemo, useState } from 'react'
@@ -30,6 +29,7 @@ import LoadingPage from '@/components/ui/loading-page'
 import { getSession } from '@/actions/session'
 import { getClass } from '@/actions/schedule'
 import { AnimatePresence } from 'framer-motion'
+import EventCardWrapper from './EventCardWrapper'
 
 const WeekSchedule = () => {
   const { width: windowWidth } = useWindowSize()
@@ -68,7 +68,7 @@ const WeekSchedule = () => {
 
   const displayWeekdays = useMemo(
     () =>
-      Array.from(Array(7)).map((item, index) => {
+      Array.from(Array(7)).map((_, index) => {
         const newDate = new Date(monday)
         newDate.setDate(newDate.getDate() + index)
         console.log(newDate)
@@ -220,9 +220,9 @@ const WeekSchedule = () => {
                           duration={schedule[weekdayIndex][index].duration}
                           classEvent={schedule[weekdayIndex][index]}
                         >
-                          <EventCard
+                          <EventCardWrapper
+                            animate={true}
                             classEvent={schedule[weekdayIndex][index]}
-                            numSlots={3}
                           />
                         </DraggableEvent>
                       )}
@@ -234,10 +234,9 @@ const WeekSchedule = () => {
           ))}
           <DragOverlay dropAnimation={null}>
             {activeId ? (
-              <EventCard
-                numSlots={3}
+              <EventCardWrapper
                 classEvent={activeClassEvent}
-                title={activeClassEvent?.title || ''}
+                animate={false}
                 className="bg-sky-400 shadow-secondary-900 shadow-2xl"
               />
             ) : null}
