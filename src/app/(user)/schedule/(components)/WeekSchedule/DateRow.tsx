@@ -4,13 +4,7 @@ import { getMonday, isToday } from '@/utils/scheduleHelpers'
 import { Info } from 'luxon'
 import { useMemo } from 'react'
 
-interface Props {
-  timeWidth: number
-  dayColumnWidth: number
-  minDayColumnWidth: number
-}
-
-const DateRow = ({ timeWidth, dayColumnWidth, minDayColumnWidth }: Props) => {
+const DateRow = () => {
   const { currentDay } = useScheduleContext()
 
   const monday = getMonday(currentDay)
@@ -26,46 +20,30 @@ const DateRow = ({ timeWidth, dayColumnWidth, minDayColumnWidth }: Props) => {
   )
 
   return (
-    <div className="inline-flex ">
-      <div className="" style={{ width: timeWidth }}></div>
-      {displayWeekdays.map((weekday, index) => (
-        <DateItem
-          key={index}
-          index={index}
-          weekday={weekday}
-          dayColumnWidth={dayColumnWidth}
-          minDayColumnWidth={minDayColumnWidth}
-        />
+    <div className="grid grid-cols-weekschedule overflow-auto scrollbar-hide pb-2">
+      <div></div>
+      {displayWeekdays.map((day, index) => (
+        <DateItem key={index} day={day} index={index} />
       ))}
     </div>
   )
 }
 
 interface DateItemProps {
-  weekday: Date
+  day: Date
   index: number
-  dayColumnWidth: number
-  minDayColumnWidth: number
 }
 
-const DateItem = ({
-  weekday,
-  index,
-  dayColumnWidth,
-  minDayColumnWidth,
-}: DateItemProps) => {
+const DateItem = ({ day, index }: DateItemProps) => {
   return (
-    <div
-      className="relative flex flex-col items-center text-gray-400"
-      style={{ width: dayColumnWidth, minWidth: minDayColumnWidth }}
-    >
+    <div className="text-center text-gray-400" key={index}>
       <p
         className={cn(
           'text-md font-bold px-4 rounded-lg',
-          isToday(weekday) && 'bg-purple-500 text-white'
+          isToday(day) && 'bg-purple-500 text-white'
         )}
       >
-        {Info.weekdays('short')[index]} {weekday.getDate()}
+        {Info.weekdays('short')[index]} {day.getDate()}
       </p>
     </div>
   )

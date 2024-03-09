@@ -8,7 +8,7 @@ import {
 } from '@dnd-kit/core'
 import DroppableSpace, { DroppableData } from '../DroppableSpace'
 import DraggableEvent, { DraggableClassEventData } from '../DraggableEvent'
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useScheduleContext } from '@/context/ScheduleContext'
 import { cn } from '@/lib/utils'
 import { TIME_ARRAY } from '../../(lib)/times'
@@ -118,6 +118,16 @@ const WeekSchedule = () => {
     setOpenEdit(true)
   }
 
+  const displayWeekdays = useMemo(
+    () =>
+      Array.from(Array(7)).map((_, index) => {
+        const newDate = new Date(monday)
+        newDate.setDate(newDate.getDate() + index)
+        return newDate
+      }),
+    [monday]
+  )
+
   const revertClassEventUpdate = () => {
     const newClassEvents = classEvents.map((classEvent) => {
       if (classEvent.id === previousClassEvent?.id) {
@@ -144,76 +154,46 @@ const WeekSchedule = () => {
         setOpen={setOpenEdit}
         revertClassEventUpdate={revertClassEventUpdate}
       />
-      <div
-        ref={calendarRef}
-        className="overflow-x-auto h-[calc(100%-72px)] box-border"
-      >
-        <DateRow
-          timeWidth={timeWidth}
-          dayColumnWidth={dayColumnWidth}
-          minDayColumnWidth={minDayColumnWidth}
-        />
-        <div className="inline-flex flex-col relative overflow-y-auto h-[calc(100%-40px)] scrollbar-hide">
-          {TIME_ARRAY.map((time, index) => (
-            <div className="flex flex-col" key={time}>
-              <div className="w-full flex">
-                <div
-                  className={cn(
-                    'border-b-[1px] border-gray-300',
-                    index == 0 && 'border-t-[1px]'
-                  )}
-                  style={{ width: timeWidth }}
-                >
-                  <p className="text-xs text-secondary-900">{time}</p>
-                </div>
-                {totalWeekdays.map((weekday, weekdayIndex) => (
-                  <div
-                    className="relative border-[1px] border-gray-200 h-20"
-                    style={{
-                      width: dayColumnWidth,
-                      minWidth: minDayColumnWidth,
-                    }}
-                    key={weekday}
-                  >
-                    <DroppableSpace
-                      occupied={occupyList[weekdayIndex][index].isOccupied}
-                      id={`${weekday.toString()}-${time}`}
-                      weekdayIndex={weekdayIndex}
-                      timeIndex={index}
-                    >
-                      <></>
-                    </DroppableSpace>
-                    <AnimatePresence mode="wait">
-                      {schedule[weekdayIndex][index] && (
-                        <DraggableEvent
-                          id={schedule[weekdayIndex][index].id}
-                          weekdayIndex={weekdayIndex}
-                          timeIndex={index}
-                          duration={schedule[weekdayIndex][index].duration}
-                          classEvent={schedule[weekdayIndex][index]}
-                        >
-                          <EventCardWrapper
-                            animate={true}
-                            classEvent={schedule[weekdayIndex][index]}
-                          />
-                        </DraggableEvent>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))}
-              </div>
+      <DateRow />
+      <div className="grid grid-cols-weekschedule overflow-auto h-[calc(100%-100px)] scrollbar-hide">
+        {TIME_ARRAY.map((time, index) => (
+          <Fragment key={time.toString()}>
+            <div className="border-[1px] border-gray-200">
+              <p className="text-xs text-secondary-900">{time}</p>
             </div>
-          ))}
-          <DragOverlay dropAnimation={null}>
-            {activeId ? (
-              <EventCardWrapper
-                classEvent={activeClassEvent}
-                animate={false}
-                className="bg-sky-400 shadow-secondary-900 shadow-2xl"
-              />
-            ) : null}
-          </DragOverlay>
-        </div>
+            {displayWeekdays.map((day, dayIndex) => (
+              <div
+                className="relative text-center h-20 border-[1px] border-gray-200"
+                key={dayIndex}
+              >
+                <DroppableSpace
+                  occupied={occupyList[dayIndex][index].isOccupied}
+                  id={`${day.toString()}-${time}`}
+                  weekdayIndex={dayIndex}
+                  timeIndex={index}
+                >
+                  <></>
+                </DroppableSpace>
+                <AnimatePresence mode="wait">
+                  {schedule[dayIndex][index] && (
+                    <DraggableEvent
+                      id={schedule[dayIndex][index].id}
+                      weekdayIndex={dayIndex}
+                      timeIndex={index}
+                      duration={schedule[dayIndex][index].duration}
+                      classEvent={schedule[dayIndex][index]}
+                    >
+                      <EventCardWrapper
+                        animate={true}
+                        classEvent={schedule[dayIndex][index]}
+                      />
+                    </DraggableEvent>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </Fragment>
+        ))}
       </div>
     </DndContext>
   )
