@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { formatTimeDuration } from '@/utils/dateFormatters'
+import { formatInterval } from '@/utils/dateFormatters'
 import { ClassEvent } from '@prisma/client'
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 function EventCard({ className, classEvent }: Props) {
   if (classEvent == null) return null
 
-  const displayTimeDuration = formatTimeDuration(
+  const displayTimeDuration = formatInterval(
     classEvent.startDate,
     classEvent.endDate
   )

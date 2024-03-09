@@ -6,12 +6,12 @@ import {
   DragOverlay,
   DragStartEvent,
 } from '@dnd-kit/core'
-import DroppableSpace, { DroppableData } from './DroppableSpace'
-import DraggableEvent, { DraggableClassEventData } from './DraggableEvent'
+import DroppableSpace, { DroppableData } from '../DroppableSpace'
+import DraggableEvent, { DraggableClassEventData } from '../DraggableEvent'
 import { useEffect, useMemo, useState } from 'react'
 import { useScheduleContext } from '@/context/ScheduleContext'
 import { cn } from '@/lib/utils'
-import { TIME_ARRAY } from '../(lib)/times'
+import { TIME_ARRAY } from '../../(lib)/times'
 import { useRef } from 'react'
 import {
   createInitialSchedule,
@@ -21,7 +21,7 @@ import {
   isToday,
 } from '@/utils/scheduleHelpers'
 import { Info } from 'luxon'
-import EditClassModal from './EditClassModal'
+import EditClassModal from '../EditClassModal'
 import { ClassEvent } from '@prisma/client'
 import { useElementSize, useWindowSize } from 'usehooks-ts'
 import { createCalendarModifier } from '@/utils/dndModifier'
@@ -29,21 +29,18 @@ import LoadingPage from '@/components/ui/loading-page'
 import { getSession } from '@/actions/session'
 import { getClass } from '@/actions/schedule'
 import { AnimatePresence } from 'framer-motion'
-import EventCardWrapper from './EventCardWrapper'
+import EventCardWrapper from '../EventCardWrapper'
+import DateRow from './DateRow'
 
 const WeekSchedule = () => {
   const { width: windowWidth } = useWindowSize()
   const [calendarRef, { width }] = useElementSize()
   const timeWidth = 100 //w-24
-  const dayColumnWidth = (width - timeWidth) / 7
+  const dayColumnWidth = width ? (width - timeWidth) / 7 : 0
   const minDayColumnWidth = 100
   const [openEdit, setOpenEdit] = useState(false)
   const { classEvents, updateClassEvents, currentDay } = useScheduleContext()
   const [activeId, setActiveId] = useState<null | string>(null)
-
-  const renderCounter = useRef(0)
-  renderCounter.current = renderCounter.current + 1
-  console.log(renderCounter)
 
   const [previousClassEvent, setPreviousClassEvent] =
     useState<null | ClassEvent>(null)
@@ -65,17 +62,6 @@ const WeekSchedule = () => {
   const monday = getMonday(currentDay)
 
   const totalWeekdays = Array.from(Array(7).keys())
-
-  const displayWeekdays = useMemo(
-    () =>
-      Array.from(Array(7)).map((_, index) => {
-        const newDate = new Date(monday)
-        newDate.setDate(newDate.getDate() + index)
-        console.log(newDate)
-        return newDate
-      }),
-    [monday]
-  )
 
   useEffect(() => {
     const updateClass = async () => {
@@ -162,25 +148,11 @@ const WeekSchedule = () => {
         ref={calendarRef}
         className="overflow-x-auto h-[calc(100%-72px)] box-border"
       >
-        <div className="inline-flex ">
-          <div className="" style={{ width: timeWidth }}></div>
-          {displayWeekdays.map((weekday, index) => (
-            <div
-              key={weekday.toString()}
-              className="relative flex flex-col items-center text-gray-400"
-              style={{ width: dayColumnWidth, minWidth: minDayColumnWidth }}
-            >
-              <p
-                className={cn(
-                  'text-md font-bold px-4 rounded-lg',
-                  isToday(weekday) && 'bg-purple-500 text-white'
-                )}
-              >
-                {Info.weekdays('short')[index]} {weekday.getDate()}
-              </p>
-            </div>
-          ))}
-        </div>
+        <DateRow
+          timeWidth={timeWidth}
+          dayColumnWidth={dayColumnWidth}
+          minDayColumnWidth={minDayColumnWidth}
+        />
         <div className="inline-flex flex-col relative overflow-y-auto h-[calc(100%-40px)] scrollbar-hide">
           {TIME_ARRAY.map((time, index) => (
             <div className="flex flex-col" key={time}>
