@@ -172,28 +172,36 @@ const WeekSchedule = () => {
                   weekdayIndex={dayIndex}
                   timeIndex={index}
                 >
-                  <></>
-                </DroppableSpace>
-                <AnimatePresence mode="wait">
-                  {schedule[dayIndex][index] && (
-                    <DraggableEvent
-                      id={schedule[dayIndex][index].id}
-                      weekdayIndex={dayIndex}
-                      timeIndex={index}
-                      duration={schedule[dayIndex][index].duration}
-                      classEvent={schedule[dayIndex][index]}
-                    >
-                      <EventCardWrapper
-                        animate={true}
+                  <AnimatePresence mode="wait">
+                    {schedule[dayIndex][index] && (
+                      <DraggableEvent
+                        id={schedule[dayIndex][index].id}
+                        weekdayIndex={dayIndex}
+                        timeIndex={index}
+                        duration={schedule[dayIndex][index].duration}
                         classEvent={schedule[dayIndex][index]}
-                      />
-                    </DraggableEvent>
-                  )}
-                </AnimatePresence>
+                      >
+                        <EventCardWrapper
+                          animate={true}
+                          classEvent={schedule[dayIndex][index]}
+                        />
+                      </DraggableEvent>
+                    )}
+                  </AnimatePresence>
+                </DroppableSpace>
               </div>
             ))}
           </Fragment>
         ))}
+        <DragOverlay dropAnimation={null}>
+          {activeId ? (
+            <EventCardWrapper
+              classEvent={activeClassEvent}
+              animate={false}
+              className="bg-sky-400 shadow-secondary-900 shadow-2xl"
+            />
+          ) : null}
+        </DragOverlay>
       </div>
     </DndContext>
   )
