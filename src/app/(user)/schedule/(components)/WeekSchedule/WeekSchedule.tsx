@@ -10,20 +10,16 @@ import DroppableSpace, { DroppableData } from '../DroppableSpace'
 import DraggableEvent, { DraggableClassEventData } from '../DraggableEvent'
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useScheduleContext } from '@/context/ScheduleContext'
-import { cn } from '@/lib/utils'
 import { TIME_ARRAY } from '../../(lib)/times'
-import { useRef } from 'react'
 import {
   createInitialSchedule,
   createOccupyList,
   getMonday,
   getWeekRange,
-  isToday,
 } from '@/utils/scheduleHelpers'
-import { Info } from 'luxon'
 import EditClassModal from '../EditClassModal'
 import { ClassEvent } from '@prisma/client'
-import { useElementSize, useWindowSize } from 'usehooks-ts'
+import { useWindowSize } from 'usehooks-ts'
 import { createCalendarModifier } from '@/utils/dndModifier'
 import LoadingPage from '@/components/ui/loading-page'
 import { getSession } from '@/actions/session'
@@ -34,10 +30,7 @@ import DateRow from './DateRow'
 
 const WeekSchedule = () => {
   const { width: windowWidth } = useWindowSize()
-  const [calendarRef, { width }] = useElementSize()
-  const timeWidth = 100 //w-24
-  const dayColumnWidth = width ? (width - timeWidth) / 7 : 0
-  const minDayColumnWidth = 100
+
   const [openEdit, setOpenEdit] = useState(false)
   const { classEvents, updateClassEvents, currentDay } = useScheduleContext()
   const [activeId, setActiveId] = useState<null | string>(null)
@@ -47,7 +40,7 @@ const WeekSchedule = () => {
   const [activeClassEvent, setActiveClassEvent] = useState<null | ClassEvent>(
     null
   )
-  const snapToCalendarModifier = createCalendarModifier(dayColumnWidth, 20)
+  const snapToCalendarModifier = createCalendarModifier(150, 40)
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
@@ -60,8 +53,6 @@ const WeekSchedule = () => {
 
   //Date handles
   const monday = getMonday(currentDay)
-
-  const totalWeekdays = Array.from(Array(7).keys())
 
   useEffect(() => {
     const updateClass = async () => {
@@ -154,24 +145,31 @@ const WeekSchedule = () => {
         setOpen={setOpenEdit}
         revertClassEventUpdate={revertClassEventUpdate}
       />
-      <DateRow />
-      <div className="grid grid-cols-weekschedule overflow-auto h-[calc(100%-100px)] scrollbar-hide">
-        {TIME_ARRAY.map((time, index) => (
-          <Fragment key={time.toString()}>
-            <div className="border-[1px] border-gray-200">
-              <p className="text-xs text-secondary-900">{time}</p>
-            </div>
-            {displayWeekdays.map((day, dayIndex) => (
+      <div className="overflow-x-scroll h-[calc(100%-100px)] box-border">
+        <DateRow />
+        <div className="grid grid-cols-weekschedule border border-gray-200 w-full overflow-y-auto h-[calc(100%-100px)] scrollbar-hide">
+          {TIME_ARRAY.map((time, index) => (
+            <Fragment key={time.toString()}>
               <div
-                className="relative text-center h-20 border-[1px] border-gray-200"
-                key={dayIndex}
+                className={`${index % 2 == 0 && 'border-t-[1px]'} border-gray-200`}
               >
-                <DroppableSpace
-                  occupied={occupyList[dayIndex][index].isOccupied}
-                  id={`${day.toString()}-${time}`}
-                  weekdayIndex={dayIndex}
-                  timeIndex={index}
+                {index % 2 == 0 && (
+                  <p className="text-xs text-secondary-900">{time}</p>
+                )}
+              </div>
+              {displayWeekdays.map((day, dayIndex) => (
+                <div
+                  className={`relative text-center h-10 ${index % 2 == 0 && 'border-t-[1px]'} border-l-[1px] border-gray-200`}
+                  key={day.toString()}
                 >
+                  <DroppableSpace
+                    occupied={occupyList[dayIndex][index].isOccupied}
+                    id={`${day.toString()}-${time}`}
+                    weekdayIndex={dayIndex}
+                    timeIndex={index}
+                  >
+                    <></>
+                  </DroppableSpace>
                   <AnimatePresence mode="wait">
                     {schedule[dayIndex][index] && (
                       <DraggableEvent
@@ -188,20 +186,20 @@ const WeekSchedule = () => {
                       </DraggableEvent>
                     )}
                   </AnimatePresence>
-                </DroppableSpace>
-              </div>
-            ))}
-          </Fragment>
-        ))}
-        <DragOverlay dropAnimation={null}>
-          {activeId ? (
-            <EventCardWrapper
-              classEvent={activeClassEvent}
-              animate={false}
-              className="bg-sky-400 shadow-secondary-900 shadow-2xl"
-            />
-          ) : null}
-        </DragOverlay>
+                </div>
+              ))}
+            </Fragment>
+          ))}
+          <DragOverlay dropAnimation={null}>
+            {activeId ? (
+              <EventCardWrapper
+                classEvent={activeClassEvent}
+                animate={false}
+                className="bg-sky-400 shadow-secondary-900 shadow-2xl"
+              />
+            ) : null}
+          </DragOverlay>
+        </div>
       </div>
     </DndContext>
   )

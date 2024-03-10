@@ -20,7 +20,7 @@ const DateRow = () => {
   )
 
   return (
-    <div className="grid grid-cols-weekschedule overflow-auto scrollbar-hide pb-2">
+    <div className="grid w-auto grid-cols-weekschedule overflow-y-auto scrollbar-hide pb-2">
       <div></div>
       {displayWeekdays.map((day, index) => (
         <DateItem key={index} day={day} index={index} />

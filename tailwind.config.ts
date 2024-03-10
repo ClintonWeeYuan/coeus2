@@ -25,7 +25,7 @@ const config: Config = {
         },
       },
       gridTemplateColumns: {
-        weekschedule: "repeat(8, minmax(100px, 1fr))",
+        weekschedule: "repeat(8, 150px)",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

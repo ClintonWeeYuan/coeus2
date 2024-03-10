@@ -16,7 +16,8 @@ function EventCard({ className, classEvent }: Props) {
   )
   const duration =
     classEvent.endDate.getHours() - classEvent.startDate.getHours()
-  const height = duration * 80 - 8
+  const height = duration * 80
+
   return (
     <div
       key={classEvent.id}

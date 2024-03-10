@@ -35,14 +35,11 @@ export function DraggableEvent({
       classEvent,
     } as DraggableClassEventData,
   })
-  // const style = transform ? {
-  //     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-  // } : undefined;
 
   return (
     <button
       ref={setNodeRef}
-      className="absolute w-full h-full pt-1 flex justify-center top-0 left-0 z-30 touch-none"
+      className="absolute w-full h-full flex justify-center top-0 left-0 z-30 touch-none"
       {...listeners}
       {...attributes}
     >

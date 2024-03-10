@@ -40,7 +40,7 @@ export const createOccupyList = (
 ) => {
   const dayArray = Array.from(Array(numDays).keys())
   const initialSchedule = Array.from(dayArray, () =>
-    new Array(24).fill({ isOccupied: false, id: 0 })
+    new Array(48).fill({ isOccupied: false, id: 0 })
   )
 
   classEvents.forEach((slot: ClassEvent) => {
@@ -65,7 +65,7 @@ export const createInitialSchedule = (
   numDays: number
 ) => {
   const dayArray = Array.from(Array(numDays).keys())
-  const initialSchedule = Array.from(dayArray, () => new Array(24).fill(null))
+  const initialSchedule = Array.from(dayArray, () => new Array(48).fill(null))
   classEvents.forEach((slot) => {
     const { startDate, endDate, title } = slot
     const day = getDayIndex(startDate)
